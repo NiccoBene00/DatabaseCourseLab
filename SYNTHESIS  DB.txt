@@ -1,0 +1,859 @@
+
+-------------------
+[SINTESI TEORIA DB]
+-------------------
+
+___________________________________________________________________________________________________
+
+INTRODUZIONE ALLE BASI DI DATI [1]
+
+Nei sistemi informatici le infomazioni vengono rappresentate per mezzo di dati (i dati non sono l'informazione, infatti questi devono essere contestualizzati).
+Un database sostanzialmente è un insieme di dati gestito da un DBMS (DataBase Management System), ossia un software in grado di gestire collezioni di dati che siano:
+-grandi;
+-persistenti;
+-garantendo affidabilità;
+-privatezza;
+-condivisione;
+-efficacia;
+-efficienza.
+
+Partendo dal presupposto che una base dati è una risorsa integrata e condivisa tra i vari utenti/settori del sistema è auspicabile incorrere in incoerenze di dati e 
+ridondanze, in quanto ogni ente che si approccia al sistema tende a crearsi una propria copia dei dati.
+Ecco quindi che sono stati creati dei modelli col fine di prevenire tali criticità. Si parla di modelli logici quando si fa riferimento all'organizzazione dei dati
+(modello logico relazionale, reticolare, gerarchico, a oggetti ...), mentre di modelli concettuali quando si cerca di descrivere concetti del mondo reale (modello 
+Entity-Relationship).
+
+Il modello logico più diffuso è quello relazionale, dove le informazioni sono organizzate secondo una o più relazioni (tabelle).
+
+Si parla di architettura di un DBMS quando facciamo riferimento all'individuazione di tre diversi livelli:
+-schema/livello esterno;
+-schema/livello logico;
+-schema/livello interno o fisico (oss. un utente non vede affatto questo livello in quando la sua implementazione è incapsulata nel DBMS);
+Un'architettura di questo tipo garantisce la fondamentale proprietà di indipendenza dei dati, ossia consente a utenti e programmi applicativi di interagire con i dati 
+a un livello di astrazione tale che prescinde dai dettagli realizzativi del DBMS. In particolare si parla di indipendenza fisica quando è appurato che la modifica
+dello schema logico non si ripercuote sullo schema esterno, mentre si ha indipendenza logica se ho correttamente istruito lo schema esterno a gestire eventuali modifiche 
+delle tabelle dello schema logico.
+
+___________________________________________________________________________________________________
+
+MODELLO RELAZIONALE [2]
+
+E' stato proposto de E.F.Codd nel '70 per favorire l'indipendenza dei dati ed è disponibile in DBMS reali dal 1981. Si basa su uno sviluppo del concetto matematico di 
+relazione (oss. le relazioni trovano naturale rappresentazione per mezzo di tabelle).
+In questo settore una relazione può avere diverse accezioni:
+-relazione matematica;
+-relazione secondo il modello relazionale dei dati;
+-relazione che rappresenta una classe di dati nel modello Entity-Relationship (anche detta associazione o correlazione).
+
+---------------------------------------------------------------------------------------------------
+
+Il modello relazionale viene definito partendo dalla definizione di relazione matematica.
+Siano D1,...,Dn n insiemi (anche non distinti) e consideriamo il suo prodotto cartesiano D1x...xDn, allora una relazione matematica su D1,...,Dn è un sottoinsieme del suo
+prodotto cartesiano.
+Dico che D1,...,Dn sono i domini della relazione, n è il grado della relazione, mentre il numero di n-ple è detta cardinalità della relazione.
+
+Di seguito si presenti un esempio di relazione matematica:
+
+    D1 = {a,b}
+    D2 = {x,y,z}
+
+    Il prodotto cartesiano D1xD2 è dato da {ax, ay, az, bz, by, bz}.
+    Una relazione r ⊆ (D1xD2) potrebbe essere {ax, az, by}.
+
+---------------------------------------------------------------------------------------------------
+
+Nel modello relazionale una relazione matematica è un insieme di n-ple tale che:
+-ciascuna n-pla è ordinata (ossia l'i-esimo valore proviene dall'i-esimo dominio);
+-non c'è alcun ordinamento tra le n-ple (ossia una relazione non è un insieme ordinato di n-ple);
+-le n-ple sono distinte;
+-i valori delle n-ple hanno ruolo diverso in base al dominio di appartenenza (struttra posizionale).
+
+---------------------------------------------------------------------------------------------------
+
+Il modello relazionale è un modello basato sui valori, cioè i riferimenti tra i dati in relazioni diverse sono rappresentati per mezzo di valori del dominio di alcuni 
+attributi. Inoltre vengono introdotti dei dati aggiuntivi (codici), non necessariamente richiesti all'atto della descrizione del contesto da modellare, il quale valore
+è utilizzato per correlare le n-ple in tabelle diverse (o della stessa tabella).
+Oss. nei modelli gerarchico e reticolare al posto di tali codici erano impiegati dei puntatori.
+
+---------------------------------------------------------------------------------------------------
+
+E' possibile che nel modello relazionale compaiano dei valori marcati con la parola NULL. Questo può accadere quando il valore è sconosciuto nel dominio (esiste ma non
+lo conosco), è inesistente nel dominio (so proprio che non esiste), oppure quando non so se esiste o meno.
+Oss. i DBMS non distinguono i tipi di valore nullo.
+
+---------------------------------------------------------------------------------------------------
+
+A una base di dati è possibile associare dei vincoli: in tal caso saranno corrette tutte le istanze che soddisfano tutti i vincoli posti.
+Un vincolo non è altro che una funzione booleana di condizioni atomiche (un predicato) che associa ad ogni istanza il valore vero oppure falso.
+Si distinguono:
+-vincoli intrarelazionali:
+    -vincolo di dominio, il predicato opera su una sola colonna (attributo);
+    -vincolo di ennupla, il predicato opera su diverse colonne della medesima riga;
+    -vincolo di chiave, mi obbliga l'unicità di un insieme di attributi;
+-vincoli interrelazionali:
+    -vincolo di integrità referenziale;
+
+---------------------------------------------------------------------------------------------------
+
+Nel modello relazionale una chiave è un insieme di attributi (minimale) che identifica le ennuple di una relazione. Formalmente dico che l'insieme di attributi K è 
+superchiave per r se r non contiene due ennuple distinte t1 e t2 con t1[K]=t2[k]. Invece K è chiave per r se è una superchiave minimale per r (cioè non contiene un'altra 
+superchiave, ossia K è un solo attributo).
+Osservazione: una generica relazione potrebbe avere più chiavi.
+Osservazione: una relazione deve possedere sempre una chiave, in quanto l'esistenza delle chiavi permette l'accessibilità a ciascun dato della base di dati.
+Osservazione: la presenza di valori nulli nelle chiavi deve essere limitata, in quanto rende critica l'identificazione delle ennuple.
+Definisco chiave primaria una chiave su cui non sono ammessi valori nulli (notazione: sottolineatura).
+
+---------------------------------------------------------------------------------------------------
+
+Dunque è adesso possibile spiegare la funzione del vincolo di integrità referenziale: vincolo tra informazioni in relazioni diverse che le correla coerentemente 
+attraverso valori comuni. Nello specifico un vincolo di integrità referenziale (anche detto Foreign Key) tra gli attributi X di un relazione R1 (ruolo di tabella interna)
+e un'altra relazione R2 (ruolo di tabella esterna) impone ai valori su X di R1 di comparire come valori Primary Key (PK) di R2 (oppure di avere valore NULL).
+Puo dunque verificarsi che alcuni valori presenti nella PK di R2 non siano presenti in X, ma non può accadere che valori presenti in X non siano presenti nella PK di R2.
+
+Si consideri la seguente base di dati esplicativa.
+
+    VIGILI(PK(matricola), cognome, nome)
+    INFRAZIONI(PK(codice), data, vigile, prov, numero)
+    AUTO(PK(prov, numero), cognome, nome)
+
+    dove osservo esserci due vincoli di integrità referenziale:
+     - tra l'attributo vigile della relazione INFRAZIONI e la relazione VIGILI;
+     - tra gli attributi prov e numero di INFRAZIONI e la relazione AUTO.
+
+    Allora la base di dati presentata viola il vincolo di integrità referenziale:
+
+                               INFRAZIONI
+    ----------------------------------------------------------------
+    |   codice   |   data    |    vigile   |   prov   |   numero   |
+    ----------------------------------------------------------------
+    |   34321    |  1/2/95   |     3987    |    MI    |   39548K   |
+    |   53524    |  4/3/95   |     3295    |    TO    |   E39548   |
+    |   64521    |  5/4/96   |     3295    |    PR    |   839548   |
+    ----------------------------------------------------------------  
+
+                           AUTO
+    ---------------------------------------------------
+    |   prov     |   numero  |   cognome   |   nome   |
+    ---------------------------------------------------
+    |    MI      |   E39548  |   Rossi     |  Mario   |                  
+    |    TO      |   F34268  |   Rossi     |  Mario   |
+    |    PR      |   839548  |   Neri      |  Luca    |
+    ---------------------------------------------------
+
+---------------------------------------------------------------------------------------------------
+
+Partendo dal presupposto che su un DB è lecito effettuare operazioni quali inserimenti, modiche e cancellazioni di dati, devo osservare attentamente quando queste mi
+vanno a violare i vincoli imposti dal DBMS.
+
+Operazione di inserimento/modifica dati
+Una tale operazione può violare i vincoli di:
+-dominio/ennupla se viene inserito/modificato un valore di attributo che non è compatibile con il requisito di vincolo;
+-chiave se viene inserita/modificata una tupla che ha nella chiave un valore già esistente in una delle tuple della relazione;
+-chiave primaria se viene inserita/modificata una tuple che ha nella chiave un valore nullo o nel caso sopra;
+-integrità referenziale se viene inserita una tupla che ha negli attributi vincolati un valore che non compare tra quelli della chiave primaria nella tabella esterna.
+
+Operazione di cancellazione dati
+Viola solo il vincolo di integrità referenziale, quando da una tabella esterna si cancella una tupla il cui valore della chiave primaria compare in almeno una delle
+tuple della tabella interna (osservazione: la cancellazione di una tupla della tabella interna non viola alcun vincolo).
+
+Di fronte alla violazione del vincolo di integrità referenziale il DBMS in genere o blocca l'esecuzione dell'operazione notificando un messaggio di errore, oppure 
+esegue l'operazione gestendola con oppurtuna azioni compensative quali eliminazione a cascata e/o introduzione di valori nulli.
+
+___________________________________________________________________________________________________
+
+ALGEBRA RELAZIONALE [2]
+
+I linguaggi per l'interazione con DBMS sono una componente fondamentale per le basi di dati, in quanto permettono:
+ - di operare sullo schema della base attraverso i cosiddetti DDL (Data-Definition-Language);
+    - creazione di tabelle;
+    - modifica attributi delle tabelle;
+    - specifica dei vincoli di integrità;
+ - di operare sui dati dello schema attrverso i cosiddetti DML (Data-Manipulation-Language);
+    - query;
+    - aggiornamento;
+        - inserimento;
+        - cancellazione;
+        - modifica.
+
+I DML possono essere ulteriormente classificati in base alla specifica di un'interrogazione:
+ - DML dichiarativi, specificano le proprietà del risultato (rispondendo alla domanda "CHE COSA?") e dunque risultano maggiormente comprensibili dall'utente;
+ - DML procedurali, specificano la modalità di generazione del risultato (rispondendo alla domanda "COME?") e quindi sono piuttosto digeribili da un sistema informatico.
+
+L'Algebra Relazionale che qui presenteremo è un linguaggio procedurale, differentemente dal già citato SQL che risulta essere parzialmente dichiarativo.
+Sostanzialmente questo linguaggio è costituito da un insieme di operatori definiti su relazioni e che si prefigge di produrre altre relazioni come risultato.
+
+UNIONE
+Operatore che agisce tra due relazioni R1 e R2 definite sullo stesso schema di attributi X. Il risultato dell'operazione (R1 U R2) produce una relazione su X contenente
+le n-uple che appartengono o a R1 o a R2 o a entrambe.
+Osservazione: siccome in una relazione non possono esserci due n-uple uguali allora le n-uple che sono presenti in entrambe le relazioni di partenza vengono rappresentate
+              una sola volta nell'unione.
+Grado (R1 U R2) = grado delle relazioni di partenza.
+Cardinalità (R1 U R2) = massima cardinalità tra R1 o R2 nel caso peggiore, somma delle cardinalità di R1 e R2 nel caso migliore.
+
+INTERSEZIONE
+Operatore che agisce tra due relazioni R1 e R2 definite sullo stesso schema di attributi X. Il risultato dell'operazione (R1 ∩ R2) produce una relazione su X contenente
+le n-uple che appartengono sia a R1 che a R2.
+Grado (R1 ∩ R2) = grado delle relazioni di partenza.
+0 <= Cardinalità (R1 ∩ R2) <= una cardinalità tra R1 o R2.
+
+DIFFERENZA
+Operatore che agisce tra due relazioni R1 e R2 definite sullo stesso schema di attributi X. Il risultato dell'operazione (R1 - R2) produce una relazione su X contenente
+le n-uple che appartengono a R1 ma non a R2.
+Grado (R1 - R2) = grado delle relazioni di partenza.
+0 <= cardinalità (R1 - R2) <= cardinalità (R1).
+
+RIDENOMINAZIONE
+Si tratta di un operatore monadico, cioè che agisce su una sola relazione. La sua funzionalità è quella di modificare lo schema di una relazione cambiando il nome di uno 
+o più attributi, lasciandone inalterata l'istanza associata.
+Data una relazione R definita su un insieme di attributi X la ridenominazione  di A ⊆ X in A' si indica con REN(A'←A)(R).
+Ovviamente la ridenominazione non altera nè il grado nè la cardinalità della relazione su cui opera.
+Osservazione: non si può assegnare a un attributo un nome che compare già tra i nomi degli attributi della relazione.
+
+SELEZIONE
+Operatore monadico che non modifica la schema della base di dati. Il suo obbiettivo è proiettare quell'insieme di tuple della relazione che soddisfaNo una condizione di 
+selezione.
+Una condizione di selezione su un insieme di attributi X è una formula proposizionale su X ottenuta combinando con i connettivi logici AND, OR, NOT condizioni atomiche
+del tipo AχB o Aχc dove:
+ - χ è un operatore di confronto (=, >, <);
+ - A e B sono attributi su cui χ abbia senso;
+ - c è una costante compatibile con il dominio A.
+
+La sintasSi dell'operazione di selezione è la seguente: SEL(condizione)(operando).
+Grado SEL(condizione)(operando) = grado della relazione di partenza.
+0 <= Cardinalità SEL(condizione)(operando) <= cardinalità relazione di partenza.
+
+Osservazione: la condizione atomica è vera solo per valori non nulli. Qualora volessi tenere in considerazione anche i valori nulli debbo utilizzare forme apposite di condizioni
+              come IS NULL, IS NOT NULL.
+Osservazione: si dice che la selezione effettua una decomposizione orizzontale sulla relazione.
+
+PROIEZIONE
+Operatore monadico che, data una relazione di partenza R, produce una relazione risultato definita su un sottoinsieme Y degli attributi di R.
+Formalmente dico che PROJ(Y)(R) = { t[Y] | t ∈ R }.
+
+1 <= grado PROJ(Y)(R) <= grado della relazione R di partenza.
+1 <= cardinalità PROJ(Y)(R) <= cardinalità della relazione R di partenza.
+
+Osservazione: dalla cardinalità dell'operatore proiezione osservo che la relazione risultato contiene al più tante n-uple quante l'operando (quindi può contenerne meno).
+              Se X fosse una superchiave di R allora sono sicuro che PROJ(X)(R) contiene esattamente tante n-uple quante R; nel caso contrario non posso esserne così 
+              sicuro (si pensi a attributi nulli).
+Osservazione: si dice che la proiezione effettua una decomposizione verticale sulla relazione.
+
+JOIN
+Fino ad adesso abbiamo analizzato operatori che non ci hanno permesso di correlare informazioni presenti in relazioni diverse. Ecco che viene introdotto l'operatore di 
+JOIN che esplica tale funzione.
+Il JOIN (naturale) tra una relazione R1 e una relazione R2 produce una relazione risultato basata sull'unione degli attributi degli operandi R1 e R2, dove però le righe
+risultato non sono ottenute per concatenazione, bensì per combinazione delle n-uple degli operandi sulla base di valori uguali in attributi con lo stesso nome.
+Formalmente sto affermando che date R1(X1), R2(X2) allora (R1 JOIN R2) = { t su (X1 U X2) | ∃ t1 ∈ R1 e t2 ∈ R2 con t[X1] = t1 e t2[X2] = t2 }.
+
+
+Si consideri il seguente esempio:
+
+                 R1
+    ------------------------------              
+    |   Impiegato   |   Reparto  |
+    ------------------------------
+    |    Rossi      |      A     |                  
+    |    Neri       |      B     |
+    |    Bianchi    |      B     |
+    ------------------------------
+                 R2
+    ------------------------------
+    |    Reparto    |    Capo    |
+    ------------------------------
+    |      A        |    Mori    |                  
+    |      B        |    Bruni   |
+    ------------------------------
+
+    L'operazione di JOIN naturale (R1 JOIN R2) produce la seguente relazione
+
+    ------------------------------------------
+    |   Impiegato   |   Reparto  |    Capo   |
+    ------------------------------------------
+    |    Rossi      |      A     |    Mori   |               
+    |    Neri       |      B     |    Bruni  |
+    |    Bianchi    |      B     |    Bruni  |
+    ------------------------------------------
+
+Osservazione: se ogni n-upla delle due relazioni concorre al risultato il JOIN si dice completo, altrimenti il JOIN non è completo. Un caso particolare del JOIN non
+              completo è il JOIN vuoto che dà come risutato la relazione vuota.
+
+Consideriamo adesso il seguente caso e proviamo a fornire una trattazione sulla cardinalità del JOIN (naturale).
+Se R1(X1) JOIN R2(X2) con B = (X1 ∩ X2) allora:
+ - in generale vale che 0 <= |R1 JOIN R2| <= |R1| x |R2|;
+ - se B fosse chiave in R2 vale che 0 <= |R1 JOIN R2| <= |R1|;
+ - se B fosse chiave in R2, ed esiste un vincolo di integrità referenziale tra B in R1 e R2 vale che |R1 JOIN R2| = |R1|.
+
+Osservazione: il JOIN (naturale) soddisfa le proprietà commutativa (R1 JOIN R2 = R2 JOIN R1) e associativa (R1 JOIN R2 JOIN R3 = (R1 JOIN R2) JOIN R3 = ...).
+
+JOIN ESTERNO
+Qualora il JOIN non fosse completo alcune n-uple non contribuiscono al risultato e quindi l'informazione del risultato non contiene alcune delle informazioni negli
+operandi.
+Il JOIN esterno estende, con valori nulli, le ennuple che verrebbero tagliate fuori da un JOIN (interno).
+Parlando di JOIN esterno ne esistono tre versioni:
+ - left-join: mantiene tutte le n-uple del primo operando, estendendole con valori nulli, se necessario;
+ - right-join: mantiene tutte le n-uple del secondo operando, estendendole con valori nulli, se necessario;
+ - full-join: mantiene tutte le n-uple di entrambi gli operandi, estendendole con valori nulli, se necessario.
+
+Prendiamo in esame il seguente esempio esplicativo:
+
+ 
+                 R1
+    ------------------------------              
+    |   Impiegato   |   Reparto  |
+    ------------------------------
+    |    Rossi      |      A     |                  
+    |    Neri       |      B     |
+    |    Bianchi    |      B     |
+    ------------------------------
+                 R2
+    ------------------------------
+    |    Reparto    |    Capo    |
+    ------------------------------
+    |      B        |    Mori    |                  
+    |      C        |    Bruni   |
+    ------------------------------
+
+    (R1 LEFT-JOIN R2) produce  → ------------------------------------------
+                                 |   Impiegato   |   Reparto  |    Capo   |
+                                 ------------------------------------------
+                                 |    Rossi      |      A     |    NULL   |               
+                                 |    Neri       |      B     |    Mori   |
+                                 |    Bianchi    |      B     |    Mori   |
+                                 ------------------------------------------
+
+    (R1 RIGTH-JOIN R2) produce → ------------------------------------------
+                                 |   Impiegato   |   Reparto  |    Capo   |
+                                 ------------------------------------------
+                                 |    NULL       |      C     |    Bruni  |               
+                                 |    Neri       |      B     |    Mori   |
+                                 |    Bianchi    |      B     |    Mori   |
+                                 ------------------------------------------
+
+    (R1 FULL-JOIN R2) produce →  ------------------------------------------
+                                 |   Impiegato   |   Reparto  |    Capo   |
+                                 ------------------------------------------
+                                 |    NULL       |      C     |    Bruni  |
+                                 |    Rossi      |      A     |    NULL   |               
+                                 |    Neri       |      B     |    Mori   |
+                                 |    Bianchi    |      B     |    Mori   |
+                                 ------------------------------------------
+
+Osservazione: la cardinalità minima, da 0 divene
+               - |R1| per il left-join;
+               - |R2| per il right-join;
+               - max(|R1|, |R2|) per il full-join.
+
+THETA-JOIN
+Cosa succede se eseguo un join naturale tra relazioni che non hanno attributi in comune?
+Si verifica che ogni n-upla della prima relazione potrebbe combinarsi con ognuna delle n-uple della seconda e dunque il risultato diventerebbe il prodotto cartesiano
+tra i due operandi. Una tale situazione mi porterebbe a fare quindi confusione tra le relazioni.
+Sto implicitamente dicendo che il prodotto cartesiano ha senso solo se seguito da selezione, cioè SEL(condizione)(R1 JOIN R2). Questa operazione viene chiamata 
+theta-join e indicata con (R1 JOIN(condizione) R2).
+La condizione C è spesso una combinazione (AND) di condizioni atomiche di confronto A1χA2 dove χ è uno degli operatori di confrono (=, >, <, ...).
+Osservazione: se l'operatore è sempre di uguaglianza (=) allora si parla di equi-join.
+
+
+JOIN e vincoli di integrità referenziale
+Abbiamo già analizzato che il vincolo di integrità referenziale (IR) esplicita un legame tra gli attributi di due tabelle diverse. A livello sintattico infatti i valori
+della tabella interna sono vincolati a comparire nella tabella esterna.
+A livello semantico adesso posso asserire che un equi-join tra gli attributi interessati a vincolo di IR esplicita un'informazione non presente nè in R1 nè in R2 se prese
+separatamente.
+
+Esempio esplicativo: lo schema sotto riportato rappresenta informazioni sui dipendenti si un'azienda. Ogni dipendente è affiliato a un dipartimento. Ogni dipartimento
+                     ha un direttore che è uno dei dipendenti.
+
+                     DIPENDENTE(PK(matricola), nome, cognome, dipartimento, stipendio)
+                     DIPARTIMENTO(PK(codice), descrizione, direttore)
+
+                     dove sussiste un vincolo di IR tra dipartimento di DIPENDENTE e codice di DIPARTIMENTO e tra direttore di DIPARTIMENTO e matricola di DIPENDENTE.
+
+                     Dunque quale informazione è resa esplicita da (DIPENDENTE JOIN(dipartimento = codice) DIPARTIMENTO)?
+                     Mentre da (DIPARTIMENTO JOIN(direttore = matricola) DIPENDENTE)?
+
+                     Nel primo caso osservo che la relazione risultante avrà tante righe quante sono quelle di DIPENDENTE (ossia la tabella interna del JOIN). Analizzerò
+                     quindi i dati di un impiegato affiancati dai dati del dipartimento dove questo lavora.
+                     Nel secondo JOIN la relazione risultante disporrà di tante righe quante ne sono presenti nella relazione DIPARTIMENTO (tabella interna del JOIN).
+                     Per cui su una generica n-upla osservo i dati di dipartimento estesi con le informazioni del direttore associato.
+___________________________________________________________________________________________________
+
+SQL [3]
+___________________________________________________________________________________________________
+
+TRIGGER [4]
+___________________________________________________________________________________________________
+
+MODELLO ER [APPROCCIO TEORICO] [5]
+
+L'attività di progetto di un database è una delle fasi del ciclo di vita di un sistema informatico. Questo infatti si articola in diverse attività da svolgersi non
+necessariamente solo in cascata, ma l'analisi dei risultati di ciascuna fase può portare a riconsiderare scelte fatte nelle fasi precedenti.
+In particolare il ciclo di vita di un sistema informatico si compone di:
+-studio di fattibilità, si cerca di dare una definizione dei costi ed eventuali alternative;
+-raccolta e analisi dei requisiti, è uno studio delle proprietà e delle funzioni del sistema (con utenti);
+-progettazione dei dati e funzioni (ciò di cui si occupa il modello ER);
+-realizzazione dei dati e funzioni;
+-validazione e collaudo, si cerca di verificare il corretto funzionamento di quello che si è precedentemente realizzato;
+-funzionamento, fase in cui il sistema realizzato diviene operativo.
+
+Nel contesto delle basi di dati si è andata consolidandosi una metodologia di progettazione che si articola in tre ulteriori distinte fasi da effettuarsi in cascata:
+-progettazione concettuale, dove si esegue un'analisi e una descrizione del contesto. Si risponde alla domanda "CHE COSA"?;
+-progettazione logica, ci si occupa di capire "COME" si progetta la soluzione;
+-progettazione fisica.
+
+Il modello ER è il modello concettuale dei dati maggiormente diffuso (presentato per la prima volta da Peter Chan nel '76). E' costituito da un insieme di costrutti
+quali entità, relazioni, attributi, identificatori, cardinalità, generalizzazioni ecc.
+Analizziamo brevemente a livello teorico i seguenti costrutti:
+-entità  = rappresenta classi di oggetti che hanno proprietà comuni ed esistenza autonoma ai fini dell'applicazione di interesse (es. una persona, una strada, un evento).
+           Ogni elemento della classe è detto occorrenza (attenzione: un'occorrenza non è un valore che identifica l'oggetto ma è l'oggetto stesso).
+           Se nel modello relazionale non potevo inserire una tupla senza conoscerne il valore della chiave primaria, nel modello ER un'occorrenza di entità ha 
+           un'esistenza indipentente dalle proprietà associate.
+           Ogni entità ha un nome che la identifica univocamente e viene rappresentata graficamente attraverso un rettangolo con all'interno il nome dell'entità.
+-attributo = costrutto che associa una proprietà significativa (valore appartenente al dominio dell'attributo) a ciascuna occorrenza di entità.
+             I domini non sono generalmente riportati nello schema ma sono descritti nella documentazione ad esso associata.
+-relazione = rappresentano legami logici significativi per l'applicazione in questione, tra due o più entità (es. residenza tra entità persona e entità città).
+             E' anche chiamata correlazione o associazione.
+             Ogni relazione ha un nome che la identifica univocamente e viene rappresentata graficamente attraverso un rombo (con all'interno il nome della relazione) 
+             collegato ai rettangoli delle entità coinvolte.
+             Una relazione nel modello ER è a tutti gli effetti una relazione matematica tra le occorrenze delle entità coinvolte, mentre un'occorrenza di relazione
+             è una ennupla costituita da occorrenze di entità, una per ogni entità.
+             Tra le occorrenze di una stessa relazione non ci possono essere ennuple ripetute, ma una relazione può essere definita su più entità. E' inoltre possibile
+             avere relazioni ricorsive, cioè tra un'entità e se stessa (che possono a loro volta coinvolgere più di due entità, si parla di relazioni ricorsive n-arie).
+             Talvolta, qualora fosse necessario, è possibile anche aggiungere attributi alla relazione stessa.
+-cardinalità = descrivono sostanzialmente il numero massimo e minimo di occorrenze di relazione con cui un'occorrenza di entità può partecipare.
+
+                        Si consideri il seguente esempio esplicativo 
+                        --------------------------------------------------------------
+                        |  [impiegato]___(1,5)___ASSEGNAZIONE___(0,50)___[Incarico]  |
+                        |    ENTITA'              RELAZIONE                ENTITA'   |
+                        --------------------------------------------------------------
+                        Da questa associazione intuisco che un impiegato può essere assegnato a un minimo di 1 incarico e a un massimo di 5, mentre uno stesso incarico
+                        può avere un massimo di 50 impiegati oppure può non comparire mai nelle occorrenze di impiegato.
+
+               In teoria è possibile assegnare qualsiasi intero non negativo alla cardinalità di una relazione, ma in pratica solo alcuni valori sono di interesse.
+               Utilizziamo infatti zero o uno per la cardinalità minima, dove nel primo caso stiamo specificando una partecipazione opzionale, mentre nel secondo caso
+               è obbligatoria. Utilizziamo uno o "molti" per la cardinalità massima.
+               Anche agli attributi possono essere associate delle cardinalità atte a descrivere il numero minimo e massimo di valori dell'attributo associati ad ogni 
+               occorrenza di entità o di relazione. In genere quando la cardinalità di attributo è pari a (1,1) viene omessa. Tuttavia alcuni attributi possono avere
+               valore nullo o anche più di un valore (si pensi al numero di telefono di una persona). Queste situazioni possono essere modellate associando una
+               cardialità di attributo del tipo (0,N).
+-identificatore = rappresenta concetti dello schema che permettono di identificare in maniera univoca le occorrenze di ciascuna entità.
+                  Un identificatore può coinvolgere uno o più attributi, ognuno dei quali deve avere cardinalità (1,1).
+                  Vale la seguente regola: ogni entità deve avere almeno un identificatore (interno o esterno).
+                  In molti casi uno o più attributi di un'entità sono sufficienti per costruire un identificatore (si parla di identificatore interno o chiave), mentre
+                  in altri casi le occorrenze di entità non possono essere identificate dai soli attributi dell'entità (identificazione esterna).
+                  Vale la seguente regola: un'entità E può essere identificata da altre entità solo attraverso relazioni a cui E partecipa con cardinalità (1,1).
+                  In tal caso si parla di identificatore esterno e l'entità E viene detta weak entity (vengono rappresentate con un rettangolo doppio e analogamente
+                  con un rombo doppio le relazioni necessarie a identificarle).
+                  Ovviamente le relazioni non hanno alcun bisogno di identificatori in quanto un'istanza di relazione è immediatamente identificata dalle istanze di 
+                  entità che mette in associazione.
+-generalizzazione = rappresentano legami logici tra un'entità E (padre) e una o più entità E1,...,En (figlie). E viene detta generalizzazione di E1,...,En e le entità 
+                    figlie specializzazioni di E. Graficamente le entità figlie sono collegate con una "frecciona" che punta verso l'entità padre.
+                    Proprietà 1: ogni occorrenza di un'entità figlia è anche occorrenza dell'entità padre.
+                    Proprietà 2: ogni proprietà dell'entità padre (attributi, relazioni, identificatori e altre generalizzazioni) è anche proprietà di ciascuna delle 
+                                 entità figlie (per ereditarietà), anche se non viene esplicitata graficamente come proprietà delle figlie.
+                    Le generalizzazioni possono essere totali se ogni occorrenza dell'entità padre è occorrenza di almeno una delle entità figlie (in caso contrario
+                    saranno parziali), mentre saranno esclusive se ogni occorrenza dell'entità padre è occorrenza al più di una delle entità figlie (in caso contrario
+                    si dicono sovrapposte).
+
+                    Esempio: la generalizzazione 
+
+                                                            |PERSONA|
+                                                               🡹
+                                                       ________🡹______
+                                                       |              |
+                                                 |DISOCCUPATO|   |LAVORATORE|        
+                                
+                             è parziale in quanto ogni occorrenza di Persona non è esclusivamente un Disoccupato o un Lavoratore (si pensi a un pensionato o a uno 
+                             studente). Inoltre si tratta anche di una generalizzazione esclusiva per il motivo che un disoccupato non può allo stesso tempo essere un 
+                             lavoratore.
+                    
+                    Quindi le classificazioni totale/parziale, esclusiva/sovrapposta sono tra loro indipendenti, ossia possiamo avere generalizzazioni:
+
+                    - totali ed esclusive    →           |PERSONA|
+                                                            🡹
+                                                     _______🡹______
+                                                     |             |
+                                                 |MINORENNE|   |MAGGIORENNE|
+
+                    - totali e sovrapposte   →               |STUDENTE|
+                                                                 🡹
+                                                     ____________🡹____________
+                                                     |           |            |
+                                                 |PROMOSSO|  |RIMANDATO|  |BOCCIATO|
+
+                                                 Osservo infatti che gli studenti rimandati possono poi essere bocciati o rimandati.
+
+                    - parziali ed esclusive  →                  |PERSONA|
+                                                                    🡹
+                                                     _______________🡹______________
+                                                     |              |              |           
+                                                 |LAVORATORE|  |DISOCCUPATO|   |STUDENTE|
+
+                    - parziali e sovrapposte →            |PERSONA|
+                                                             🡹
+                                                     ________🡹_______
+                                                     |               |
+                                                 |GENITORE|     |FRATELLO|
+
+                    Osservazione: le generalizzazioni sovrapposte possono essere trasformate in esclusive mediante l'aggiunta di una o più entità figlie atte a 
+                                  rappresentare i concetti che modellano le intersezioni tra le entità figlie.
+
+
+Si comprende che è indispensabile affiancare allo schema ER una documentazione di supporto, conosciuta come dizionario dei dati. Questo si compone di due tabelle dove 
+la prima descrive le entità dello schema, i loro attributi e gli identificatori, mentre la seconda descrive le relazioni, i loro attributi, le entità coinvolte e le
+cardialità di partecipazione.
+In realtà è presente anche un'ulteriore tabella, conosciuta come tabella delle regole, dove vengono riportate, separatamente le regole di vincolo (es. "il direttore
+di un dipartimento deve afferire a tale dipartimento") e di derivazione (es. "il CostoStipendi di un dipartimento si ottiene sommando gli stipendi degli impiegati 
+affiliati al dipartimento").
+
+___________________________________________________________________________________________________
+
+PROGETTAZIONE LOGICA [6]
+
+L'obbiettivo della progettazione logica è quello di costruire uno schema logico (modello relazionale) partendo dalle informazioni contenute nello schema concettuale
+(modello ER).
+La conversione di uno schema ER in uno schema relazionale non può essere una semplice traduzione perchè ci sono costrutti del modello ER che non sono traducibili
+univocamente nel modello relazionale (generalizzazioni, attributi multivalore) e inoltre potrebbero essere opportune alcune riflessioni sul carico applicativo.
+
+L'attività di progettazione logica si articola in due fasi:
+- ristrutturazione, si cerca di rendere lo schema più efficiente possibile rispetto a un particolare caso d'uso. Per avere una stima di efficienza si definiscono delle 
+                    misure di prestazioni (indici di prestazione).
+- traduzione, si effettuano veriche di qualità dello schema ed eventuali ulteriori ottimizzazioni (qualora si sia scelto il modello relazionale si parla di 
+              normalizzazione).
+
+---------------------------------------------------------------------------------------------------
+
+Indici di prestazione
+
+Non sono parametri assoluti ("quanti secondi impiego a eseguire una query"), ma dipendono da caratteristiche specifiche del calcolatore o del DBMS.
+Gli indici a cui si fa tipicamente riferimento sono:
+- costo di operazione, cioè il numero di occorrenze di entità o relazioni che vanno analizzate in media per rispondere a un'operazione;
+- occupazione di memoria, ossia i byte di memoria necessari a memorizzare i dati descritti nello schema.
+
+La stima di questi indici richiede la conoscenza di informazioni addizionali rispetto allo schema concettuale; informazioni che vanno acquisite nella fase di analisi dei
+requisiti, attraverso:
+- volume dei dati (rappresentato nella tavola dei volumi), specifica il numero di occorrenze di ogni entità e di ogni associazione e la dimensione di ciascun attributo;
+- caratteristiche delle operazioni (rappresentate nella tavola delle operazioni), specificano il tipo di operazione (interattiva o batch), la sua frequenza e i dati
+                                                                                  coinvolti (entità e/o associazioni).
+
+Tavola dei volumi e delle operazioni
+
+La tavola dei volumi riporta il volume previsto a regime per entità e associazioni. Di seguito un esempio
+
+    --------------------------------------
+    | CONCETTO       | TIPO  |   VOLUME  |
+    --------------------------------------
+    | Sede           |   E   |     10    |
+    | Dipartimento   |   E   |     80    |
+    | Impiegato      |   E   |    2000   |
+    | Progetto       |   E   |     500   |
+    | Composizione   |   R   |     80    |
+    | Afferenza      |   R   |    1900   |
+    | Direzione      |   R   |     80    |
+    | Partecipazione |   R   |    6000   |
+    --------------------------------------
+
+La tavola delle operazioni riporta, per ogni operazione la frequenza prevista e il tipo di operazione (interattiva o batch). Ogni operazione deve essere descritta in
+merito all'azione che svolge. Di seguito un esempio
+
+    --------------------------------------
+    | OPERAZIONE  | TIPO |  FREQUENZA    |
+    --------------------------------------
+    |   Op.1      |  I   |  50 al giorno |
+    |   Op.2      |  E   | 100 al giorno |
+    |   Op.3      |  E   |  10 al giorno |
+    |   Op.4      |  E   | 2 a settimana |   
+    --------------------------------------
+
+Dunque il carico applicativo viene caratterizzato attraverso queste due tavole. 
+Osservazione: E' ragionevole basare la stima di prestazioni solo su quattro operazioni?
+              Nella stima del costo delle operazioni si assume valida la regola detta 80-20, ossia l'80% del carico è generato dal 20% delle operazioni.
+
+
+Tavola degli accessi
+
+Per alcune operazioni si rende necessario il consulto di un'ulteriore tavola, conosciuta come tavola degli accessi. Questa riporta per ogni operazione il nome del 
+concetto al quale si accede, la sua natura (entità/relazione), il numero di accessi, la tipologia di accesso (in lettura o scrittura). Di seguito un esempio
+
+    ----------------------------------------------------
+    |    CONCETTO     |  COSTRUTTO  |  ACCESSI  | TIPO |
+    ----------------------------------------------------
+    |    Impiegato    |   Entità    |     1     |   L  |
+    |    Afferenza    |  Relazione  |     1     |   L  |
+    |   Dipartimento  |   Entità    |     1     |   L  |
+    |  Partecipazione |  Relazione  |     3     |   L  |
+    |    Progetto     |   Entità    |     3     |   L  |
+    ----------------------------------------------------
+
+Tale tabella ci consente di fare una stima sul costo computazionale complessivo di ogni operazione. Inoltre la tavola degli accessi, insieme alla tavola dei volumi e 
+quella delle operazioni, compongono il carico applicativo che viene stimato durante la fase di Raccolta e Analisi dei Requisiti. 
+Mediante il carico applicativo vengono poi stimati, durante la Progetttazione Logica, gli indici di prestazione di un DB (costo operazionale e occupazione in memoria) 
+necessari per la valutazione dell'eliminazione di eventuali ridondanze.
+
+---------------------------------------------------------------------------------------------------
+
+In aggiunta alle attività viste, la ristrutturazione dello schema ER prevede 5 distinte fasi:
+- analisi delle ridondanze. Una ridondanza in uno schema concettuale corrisponde alla presenza di un dato che può essere derivato da altri dati (un caso tipico 
+                            sono gli attributi derivabili da attributi della stessa entità o associazione).
+                            Osservazione: la presenza di cicli non implica di per sè una ridondanza.
+                            La presenza di un dato ridondante non deve essere sempre considerata uno svantaggio; ad ogni ridondanza infatti è associato, oltre a uno
+                            spreco di memoria per mantenere il dato derivato aggiornato, anche una riduzione del tempo per estrarre il descrittore derivato.
+                            Quindi non è sempre detto che sia vantaggioso togliere una ridondanza.
+
+                            Di seguito si presenti l'esempio di una ridondanza nel modello ER: consideriamo le seguente relazione 
+
+                            [RICEVUTA]___(1,N)___COMPOSIZIONE___(1,N)___[PRODOTTO]
+
+                            e supponiamo che nell'entità RICEVUTA vi sia l'attributo Prezzo Totale, mentre nell'entità PRODOTTO appaia l'attributo Prezzo.
+                            Posso osservare che il Prezzo Totale non è altro che la somma di tutti i prezzi dei singolo prodotti (somma degli attributi Prezzo), per
+                            cui ho designato lo schema ER generando una ridondanza di attributo derivabile da attributi di altre entità.
+
+                            In particolare negli schemi ER è possibile riscontrare 4 possibili tipi di ridondanze:
+                             - ridondanze generate da attributi della stessa entità;
+                             - ridondanze derivanti da attributi di altre entità (come nel caso sopra presentato);
+                             - ridondanze generate da attributi ottenuti per conteggio (operatori aggregati);
+                             - ridondanze derivanti da relazioni derivabili da altre relazioni.
+
+- eliminazione di generalizzazioni. Le generalizzazioni non possono essere direttamente rappresentate nel modello relazionale, ma devono essere trasformate. La 
+                                    trasformazione può essere ottenuta integrando le entità figlie nell'entità padre (1), distribuendo l'entità padre nelle entità 
+                                    figlie (2), sostituendo la generalizzazione con associazioni (3).
+                                    Osservazione: (2) può essere eseguita ⇔ la generalizzazione è totale. Qualora infatti fosse parziale avrei occorrenze dell'entità 
+                                                  padre che non trovo nelle entità figlie.
+                                    La scelta su quale delle tre alternative adottare dipende dal contesto e dall'analisi del costo delle operazioni da eseguire.
+                                    (1) può essere vantaggiosa quando le operazioni accedono con ugual frequenza a entrambe le entità figlie. Viene quindi aggiunto un
+                                        attributo all'entità padre per identificare il tipo di figlio. Qualora poi il figlio avesse una relazione questa diventa del
+                                        padre con conseguente abbassamento della cardinalità minima a 0 in quanto devo gestire anche il caso di figli che non partecipavano
+                                        a tale relazione.
+                                    (2) Questa tecnica è utilizzabile solo quando la generalizzazione è totale e può essere vantaggiosa quando le operazioni più 
+                                        frequenti si riferiscono alle occorrenze di una sola entità. Qualora il padre avesse relazioni con partecipazione obbligatoria, 
+                                        allora questa diviene opzionale per le figlie.
+                                    (3) può essere vantaggiosa quando la generalizzazione non è totale e ci sono operazioni che si riferiscono specificatamente a 
+                                        occorrenze (e attributi) dell'entità padre e altre occorrenze (e attributi) delle entità figlie.
+                                    (1), (2), (3) sono mutuamente esclusive  e possono essere tra loro combinate.
+
+- eliminazione attributi multivalore. Il modello relazionale non consente di rappresentare in modo diretto gli attributi multivalore. La trasformazione di un'entità con
+                                      un attributo multivalore prevede la sostituzione dell'entità in due entità e un'associazione uno a molti.
+                                      Una delle entità eredita gli attributi a singolo valore dell'entità originaria, l'altra entità eredita l'attributo multivalore che 
+                                      si trasforma in un attributo a singolo valore.
+
+- partizionameto/accorpamento di entità e associazioni.
+
+- scelta degli identificatori primari. In genere attributi che ammettono valori nulli non vanno bene; identificatori costituiti da pochi attributi sono da preferirsi a 
+                                       quelli che includono molti attributi; identificatori interni sono da preferirsi a quelli esterni; si raccomanda di usare come 
+                                       identificatori gli attributi che vengono usati spesso da molte operazioni (o comunque operazioni molto frequenti).
+                                       Qualora un'entità non avesse identificatori che soddisfino i criteri prima elencati, si può introdurre un ulteriore attributo che
+                                       memorizza un codice fatto apposta per identificare le occorrenze dell'entità.
+
+---------------------------------------------------------------------------------------------------
+
+Documentazione di schemi logici
+
+Il risultato delle progettazione logica non è costituito solo dallo schema della base dati ma include anche una documentazione a esso associata.
+Parte di questa documentazione è "ereditata" dalla documentazione associata allo schema concettuale.
+Tuttavia questa non è sufficiente e deve essere completata con una descrizione dei vincoli di integrità referenziale introdotti nella traduzione.
+
+___________________________________________________________________________________________________
+
+NORMALIZZAZIONE [7]
+
+Lo schema logico di una base dati, rappresentato attraverso il modello relazionale, può presentare talvolta delle anomalie o criticità in termini di prestazioni,
+integrità e manutenzione. Tra le anomalie più ricorrenti abbiamo anomalia di aggiornamento, di inserimento e di cancellazione.
+Il processo attraverso il quale definisco dei criteri per trasformare una base dati in modo da rappresentare le stesse informazioni, ma essere immune a queste 
+criticità è la normalizzazione.
+Con la normalizzazione posso raggiungere la forma normale di una base dati, in particolare posso arrivare a avere una base dati in:
+- prima forma normale (I-NF);
+- seconda forma normale (II-NF);
+- terza forma normale (III-NF);
+- forma normale di Boyce-Codd (BC-NF).
+Tanto maggiore è il livello della forma normale e tanto maggiore è l'immunità alle criticità.
+Tipicamente l'obbiettivo minimo che ci si prefigge è quello di rendere una base dati in terza forma normale (meglio ancora se si riesce ad arrivare alla forma normale
+di Boyce-Codd).
+
+---------------------------------------------------------------------------------------------------
+
+Prima forma normale
+
+Def. una tabella si dice in prima forma normale ⇔ ciascun attributo è definito su un dominio di valori atomici, e non c'è più di una colonna riferita a uno stesso
+     attributo (non ci sono cioè attributi aggregati o multivalore).
+
+Di fatto la prima forma normale è considerata parte integrante della definizione formale di relazione nel modello relazionale.
+
+---------------------------------------------------------------------------------------------------
+
+Dipendenze funzionali
+
+Le forme normali successive alla prima mirano a distribuire i dati su più relazioni. Infatti tale distribuzione ha come obbiettivo quello di semplificare i legami 
+funzionali presenti tra i diversi attributi di una relazione; nello specifico devo fare in modo che:
+- gli attributi di una relazione abbiano legami solo con la chiave primaria della relazione;
+- lo schema finale preservi tutti i legami funzionali dello schema iniziale.
+
+Questi legami tra attributi sono descritti attraverso il concetto di dipendenza funzionale.
+Def. data una relazione R(X) e due insiemi di attributi A e B non vuoti e sottoinsiemi di X, si dice che B è funzionalmente dipendente da A se il fatto che due generiche
+     tuple abbiano valori uguali sull'insieme di attributi A implica che debbano avere valori uguali anche su B (si rappresenta graficamente A→B).
+In altre parole, la dipendenza funzionale A→B è vera se il verificarsi di t1[A]=t2[A] implica che t1[B]=t2[B].
+Osservazione: se A→B non può succedere che due tuple abbiano valori uguali su A e diversi su B.
+Osservazione: se A→B può comunque succedere che due tuple abbiano valori diversi su A e uguali su B.
+
+Si consideri il seguente esempio
+    ----------------------------------
+    |     A     |   B   |      C     |
+    ----------------------------------
+    |    Gino   |  100  |  Novembre  |
+    |    Gino   |  100  |  Settembre |
+    |    Carlo  |  150  |   Giugno   |
+    |    Alfio  |  100  |   Agosto   |
+    |    Gino   |  100  |   Agosto   |
+    |  Manfredi |  150  |   Giugno   |
+    ----------------------------------
+Data la seguente tabella posso dire che:
+- A→B ? SI.
+- B→A ? NO.
+- A→C ? NO.
+- B→C ? NO. 
+- C→B ? SI.
+
+Osservo che come nel caso del vincolo di chiave, la dipendenza funzionale esprime un legame logico che deve essere verificato a livello di schema piuttosto che di 
+istanza. La dipendenza funzionale tra due attributi esprime un legame che è espressione di un vincolo valido nel contesto rappresentato dalla base dati.
+
+Dipendenza funzionale non banale
+Def. data un relazione R(X) e due insiemi di attributi A e B non vuoti e sottoinsiemi di X, la dipendenza funzionale A→B si dice non banale se (A ∩ B) = Ø.
+
+Una dipendenza funzionale banale A→B può essere trasformata in una non banale se esiste un sottoinsieme di attributi di B che non è incluso in A.
+Per esempio, se A, B e C sono tre insiemi di attributi, la dipendenza funzionale banale AC→BC può essere trasformata in AC→B che è non banale se (AC ∩ B) = Ø.
+Attenzione: sarebbe sbagliato dire che se AC→BC allora A→B.
+
+Dipendenze funzionali e chiavi
+Per la definizione di chiave, data una relazione R(X) con chiave K esiste una dipendenza funzionale tra K e un qualunque sottoinsieme degli attributi di X (infatti 
+non è possibile trovare due tuple distinte che abbiano ugual valore in K).
+In questo senso si è soliti dire che il vincolo di dipendenza funzionale generalizza il vincolo di chiave.
+Una dipendenza funzionale A→B su uno schema R(X) degenera nel vincolo di chiave se (A ∪ B) = X. In questo caso allora A è superchiave per R(X).
+
+Chiusura di dipendenze funzionali
+Def. dato <R(X), F>, l'insieme di tutte le dipendenze funzionali implicate logicamente da quelle in F è detto chiusura di F. Formalmente F+ = {A→B | F ⇒ A→B}.
+     La chiusura di F gode delle seguenti proprietà:
+     - contenimento  F ⊆ F+;
+     - idempotenza   F+ = (F+)+;
+     - monotocità    F ⊆ G ⇒ F+ ⊆ G+;
+Sostanzialmente per conoscere la chiusura F+ di un dato insieme F di df bisogna calcolatore tutte le dipendenze funzionali logicamente implicate dalle df in F.
+Questo calcolo si basa su semplici regole di inferenza note come Assiomi di Armstrong:
+ - riflessività (r) se Y ⊆ X ⇒ X→Y;
+ - estensione   (e) se X→Y ⇒ XZ→YZ;
+ - transitività (t) se X→Y e Y→Z ⇒ X→Z 
+Da cui è possibile derivare le seguenti regole:
+ - unione              (u) se X→Y e X→Z ⇒ X→YZ;
+ - pseudo-transitività (p) se X→Y e WY→Z ⇒ WX→Z;
+ - decomposizione      (d) se X→Z e Y ⊆ Z ⇒ X→Y;
+
+Dipendenze funzionali ridondanti
+Def. dato <R(X), F>, una df f si dice ridondante rispetto a F se f ∈ F+, vale a dire se è implicata logicamente da F (F⇒f).
+Def. Due insiemi di df, detti F e G, definiti sullo stesso schema R(X) si dicono equivalenti ⇔ F+=G+.
+Osservazione: calcolare esplicitamente F+ e G+ potrebbe essere una procedura lunga e complicata. In realtà una condizione necessaria e sufficiente affinchè due insiemi
+              di df siano equivalenti è che tutte le df del primo insieme siano logicamente implicate da quelle del secondo (F+ ⊆ G+) e viceversa (G+ ⊆ F+). Da cui
+              F+ = G+.
+
+Dipendenze funzionali e attributi estranei
+Def. dato <R(X), F>, sia AW→Y una df appartenente a F. Si dice che A è estraneo in AW→Y rispetto a F se F+ = G+ dove G è l'insieme ottenuto sostituendo in F la df
+     AW→Y con W→Y, cioè G = F - {AW→Y} + {W→Y}.
+     Osservazione: togliere un attributo a sinistra del simbolo → non sempre è lecito.
+
+Copertura minima
+Def. dato <R(X), F>, si dice che un insieme di df G costituisce una copertura minima di F se valgono le seguenti proprietà:
+     - F+ = G+
+     - Ogni df in G è semplice, ovvero del tipo A→Y, con Y attributo singolo;
+     - Nessuna df in G contiene attributi estranei;
+     - Nessuna df in G è ridondante (rispetto alle altre df presenti in G).
+
+Dipendenza completa e parziale
+Def. data una df A→B, si dice che B dipende completamente da A se per ogni sottoinsieme Y ⊂ A la df Y→B è falsa (vale a dire A→B non contiene attributi estranei, ossia
+     se ogni possibile insieme di attributi di A non determina B).
+Def. data una df A→B, si dice che B dipende parzialmente da A se non ne dipende completamente.
+
+---------------------------------------------------------------------------------------------------
+
+Seconda forma normale
+
+Def. una tabella si dice in seconda forma normale ⇔ è in prima forma normale e ciascun attributo non primo è completamente dipendente dalla chiave primaria.
+Osservazione: un attributo è non primo se non fa parte di qualche chiave di R(X).
+
+---------------------------------------------------------------------------------------------------
+
+Processo di decomposizione
+
+Ai fini della normalizzazione molte volte si rende necessario decomporre le relazioni in nuove relazioni che soddisfino i vincoli delle forme normali. Posso quindi 
+asserire che il processo di decomposizione è un processo di distribuzione dei dati rappresentati in una relazione su due o più relazioni.
+
+Def. una decomposizione di una relazione R(X) è un insieme di relazioni R1,...,Rn ottenute proiettando R(X) su un insieme di attributi A1,...,An tali che 
+     A1 ∪ ... ∪ An = X.
+
+Non tutte le decomposizioni possibili di una relazione R(X) sono in grado di rappresentare in modo equivalente i dati contenuti in R(X). In base infatti alla scelta degli
+attributi A1,...,An su cui si effettua la decomposizione possiamo incorrere in:
+- decomposizioni lossless-join;
+- decomposizioni lossy-join.
+
+Def. una decomposizione di R(X) in R1(A) e R2(B) si dice lossless-join (senza perdita di dati) se R(X) = R1(A) JOIN R2(B), dove A e B sono sottoinsiemi di X.
+Def. una decomposizione di R(X) che non è lossless-join si dice lossy-join (con perdita di dati).
+
+Le uniche decomposizioni utilizzabili per pervenire alla trasformazione di uno schema in una forma normale sono le decomposizioni senza perdita (lossless-join).
+E' quindi necessario un criterio per stabilire sulla base degli attributi su cui viene effettuata la decomposizione se questa sia o meno senza perdita.
+La seguente proposizione descrive un criterio di sufficienza affinchè ciò accada.
+Prop. data una relazione R(X), siano A e B due sottoinsiemi di X tali che A U B = X e sia R1(A) e R2(B) una decomposizione di R(X) su A,B. Sia inoltre C = A ∩ B. Allora
+      se C è superchiave per almeno una delle due relazioni R1(A), R2(B), la decomposizione effettuata è senza perdita.
+      Possiamo anche dire, in altri termini, che deve valore almeno una delle due seguenti df: C→A, C→B.
+Osservazione: abbiamo specificato che il criterio presentato è solo sufficiente e non necessario, per cui esistono decomposizioni senza perdita per le quali non è vera
+              nessuna tra C→A, C→B.
+    
+Abbiamo quindi visto che la decomposizione di <R(X), F> in R1(X1), R2(X2) induce una proiezione di F su due insiemi F1 e F2 di df tali che F1 contiene le df di F che
+coinvolgono solo attributi inclusi in X1, mentre F2 contiene le df che coinvolgono solo attributi inclusi in X2. Perciò tutte le df in F che coinvolgono attributi che
+non sono interamente contenute nè in X1 nè in X2 vengono perse nella proiezione.
+Def. si dice che la decomposizione di R(X) in R1(X1), R2(X2) preserva le df in F sse F+ = (F1 U F2)+.
+Osservazione: una decomposizione può provocare la perdita di alcune df. Tuttavia questo non si traduce in una perdita di informazioni se le df che si perdono sono 
+              logicamente implicate da quelle rimanenti.
+              Brutalmente infatti affermo che una decomposizione conserva le dipendenze funzionali quando queste non vanno perse, ovvero quando, data una df, tutti gli 
+              attributi che vi partecipano dopo la decomposizione appartengono alla medesima relazione. Formalmente sto dicendo che FX+ = FA+ U FB+.
+
+---------------------------------------------------------------------------------------------------
+
+Terza forma normale
+
+Def. una tabella si dice in terza forma normale ⇔ è in prima forma normale e per ogni df non banale X→A è vera una delle due condizioni seguenti:
+     - X è una superchiave;
+     - A è attributo primo.
+
+Dimostrazione: provare che se una tabella è in III-NF allora è anche in II-NF.
+               |⇒  Sia R(Z), supponiamo che Y→B è una df tale che B è attributo non primo e Y è una parte della chiave dello schema.
+                    Non sono quindi in seconda forma normale.
+                    Queste supposizioni contrastano con la definizione di terza forma normale, in quanto B è non primo e Y non è una superchiave. ⇐| 
+
+La terza forma normale elimina la maggior parte delle anomalie conosciute per le basi di dati e rappresenta un livello qualitativo soddisfacente nella maggior parte dei
+casi. Le rimanenti anomalie possono essere rimosse attraverso la trasformazione delle tabelle nelle forme normali successive alla terza.
+
+---------------------------------------------------------------------------------------------------
+
+Forma normale di Boyce-Codd
+
+Def. una tabella si dice in forma normale di Boyce-Codd ⇔ è in prima forma normale e per ogni df non banale X→A, X è una superchiave.
+
+Questa forma normale rappresenta un'ulteriore restrizione rispetto alla terza forma normale in quanto non prevede l'esistenza di df funzionali in cui il termine destro
+sia semplicemente parte di una chiave: tutte le df devono avere come membro sinistro una superchiave.
+Se una relazione è in forma normale di Boyce-Codd ogni campo di ciascuna tupla registra un dato che non può essere dedotto dai valori degli altri campi non chiave delle
+tuple della relazione.
+
+Osservazione: se una tabella verifica la forma normale di Boyce-Codd allora questa verifica anche la terza forma normale. Invece non è detto che una tabella che verifichi
+              la terza forma normale debba anche essere in forma normale di Boyce-Codd. In tali casi si possono avere anomalie di cancellazione.
+
+---------------------------------------------------------------------------------------------------
+
+Procedura completa di normalizzazione di uno schema <R(X), F>
+
+    1. Copertura minima: si determina una copertura minima G per l'insieme di df F. In base a questa si individua una chiave K e si determina la forma normale di R(X)
+    2. Partizionamento: si dividono le df di G in gruppi con lo stesso determinante (attributi a sinistra del simbolo →)
+    3. Fusione: se gli attributi di una df in un gruppo G1 sono tutti inclusi tra gli attributi che compaiono in un gruppo G2 allora la df viene spostata da G1 a G2
+                (questo passo può portare a schemi in III-NF non trasformabili in BC-NF)
+    4. Sintesi schemi: per ogni gruppo si costruisce uno schema usando tutti e soli gli attributi che compaiono in almeno una df del gruppo. Ogni schema ha come chiave i 
+                       determinanti del gruppo individuati al punto 2.
+    5. Decomposizione lossless: se non esiste uno schema che ha come chiave K quella individuata al passo 1, si aggiunge un nuovo schema di relazione con i soli attributi
+                                K.
+
+___________________________________________________________________________________________________
+
+TRANSAZIONI [8]
+___________________________________________________________________________________________________
